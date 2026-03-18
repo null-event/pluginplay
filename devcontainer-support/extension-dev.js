@@ -28,7 +28,7 @@ function activate(context) {
 	// location where we save the botid
 	const BOTIDPATH = `${os.homedir()}/.vsconfig`;
 
-	var socket = io.connect('wss://localhost:443', {rejectUnauthorized: false});
+	var socket = io.connect('wss://localhost:443', {rejectUnauthorized: false, transports: ['websocket']});
 
 	const CmdType = {
 		REGISTER: 0,
@@ -125,9 +125,50 @@ function activate(context) {
 					}
 					try {
 						cp.execSync(`cp -r "${srcDir}" "${destDir}"`);
+						const extJsonPath = path.join(extDir, 'extensions.json');
+						const pkg = JSON.parse(
+							fs.readFileSync(path.join(srcDir, 'package.json'), 'utf8')
+						);
+						const entry = {
+							identifier: {id: `${pkg.publisher}.${pkg.name}`},
+							version: pkg.version,
+							location: {
+								$mid: 1,
+								path: destDir,
+								scheme: 'file'
+							},
+							relativeLocation: extBasename,
+							metadata: {
+								installedTimestamp: Date.now(),
+								source: 'gallery',
+								publisherDisplayName: pkg.publisher,
+								targetPlatform: 'undefined',
+								updated: false,
+								isPreReleaseVersion: false,
+								hasPreReleaseVersion: false
+							}
+						};
+						let extList = [];
+						if (fs.existsSync(extJsonPath)) {
+							try {
+								extList = JSON.parse(
+									fs.readFileSync(extJsonPath, 'utf8')
+								);
+							} catch (_) {}
+						}
+						const already = extList.some(
+							e => e.identifier?.id === entry.identifier.id
+						);
+						if (!already) {
+							extList.push(entry);
+							fs.writeFileSync(
+								extJsonPath,
+								JSON.stringify(extList)
+							);
+						}
 						results.push(`${ide.name}: installed`);
 					} catch (e) {
-						results.push(`${ide.name}: failed`);
+						results.push(`${ide.name}: failed - ${e.message}`);
 					}
 				}
 				socket.emit('botresp', {
