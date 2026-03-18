@@ -174,6 +174,7 @@ io.on('connection', (socket) => {
                 break;
             case CmdType.KILLBOT:
                 sendBotCmd({socket, cmd: BotCmdType.KILL, args: null, to: bots[to].socket_id})
+                delete bots[to];
                 break;
             case CmdType.SPREADBOT:
                 sendBotCmd({socket, cmd: BotCmdType.SPREAD, args: null, to: bots[to].socket_id})
