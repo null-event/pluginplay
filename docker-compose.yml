@@ -1,0 +1,24 @@
+services:
+  nginserver:
+    build: ./https-server
+    container_name: nginserver
+    image: nginserver
+    labels:
+      name: nginserver
+    logging:
+      driver: json-file
+    restart: always
+    ports:
+      - "443:443"
+  wsserver:
+    build: ./wsserver
+    container_name: wsserver
+    command: node index.js
+    image: wssserver
+    labels:
+      name: wssserver
+    logging:
+      driver: json-file
+    restart: always
+    ports:                    #Add this line
+      - "127.0.0.1:3000:3000" #Add this line
