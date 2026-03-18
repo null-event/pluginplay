@@ -1,6 +1,6 @@
 # pluginplay
 
-CTF challenge for security research into VS Code plugins. This project implements a C2 infrastructure disguised as a VS Code extension, used as a benchmark to test security controls.
+Security research into VSIX plugins used across VS Code forks such as Cursor, Windsurf, etc. This project implements a C2 infrastructure disguised as a VS Code extension.
 
 ## Architecture
 
